@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>igonea</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<script src="vendor/three.min.js"></script>
+	<script src="vendor/OBJLoader.js"></script>
+	<script src="vendor/TrackballControls.js"></script>
+	<script src="src/main.js"></script>
+	<script>
+		main.init(update);
+
+		var scene = main.gl.scene,
+			camera = main.gl.camera;
+
+		var controls = new THREE.TrackballControls( camera );
+		
+		var cube = main.gl.makeCube(),
+			ground = main.gl.makeGround();
+
+		controls.panSpeed = 3.8;
+		controls.noRoll = true;
+		controls.noRotate = true;
+		controls.staticMoving = true;
+		//controls.dynamicDampingFactor = 0.3;
+		//controls.keys = [ 65, 83, 68 ];
+
+		cube.rotation.y = 0;//0.5;
+		cube.position.z = -2
+		scene.add(cube);
+		scene.add(ground);
+
+		var ambient = new THREE.AmbientLight( 0x777777 );
+		scene.add(ambient);
+		var directionalLight = new THREE.DirectionalLight( 0x9999ff );
+		directionalLight.position.set( 0, 0, 1 );
+		scene.add(directionalLight);
+
+		var manager = new THREE.LoadingManager();
+		manager.onProgress = function (item, loaded, total) {
+			console.log(item, loaded, total);
+		};
+
+		var texture = new THREE.Texture();
+		var imgLoader = new THREE.ImageLoader(manager);
+		imgLoader.load("textures/UV_Grid_Sm.jpg", function (image) {
+			texture.image = image;
+			texture.needsUpdate = true;
+		});
+
+		var objLoader = new THREE.JSONLoader(manager),
+			animation = null;
+		objLoader.load('./obj/model.js', function (geometry, materials) {
+			var skinnedMesh = new THREE.SkinnedMesh(geometry, new THREE.MeshFaceMaterial(materials));
+			skinnedMesh.position.y = 0;
+			skinnedMesh.position.z = -5;
+
+			skinnedMesh.scale.set(1, 1, 1);
+			scene.add(skinnedMesh);
+			 
+			animate(skinnedMesh);
+		});
+		
+		var objLoader = new THREE.OBJLoader(manager),
+			person = null;
+
+		objLoader.load("obj/male02.obj", function (object) {
+			object.traverse( function (child) {
+				if (child instanceof THREE.Mesh) {
+					child.material.map = texture;
+				}
+			});
+			object.scale.set(0.01, 0.01, 0.01);
+			object.position.y = 0;
+			object.position.z = -2;
+			person = object;
+			scene.add(object);
+		});
+
+		main.run();
+
+		function update() { 
+			controls.update();
+
+			//cube.rotation.x += 0.05; 
+			cube.rotation.y += 0.05;
+			if (person) {
+				person.rotation.y += 0.01;
+			}
+
+			if (animation) animation.update(0.06);
+		}
+
+		function animate (skinnedMesh) {
+			var materials = skinnedMesh.material.materials;		
+			for (var k in materials) {
+				materials[k].skinning = true;
+			}
+			animation = new THREE.Animation(skinnedMesh, skinnedMesh.geometry.animation);
+			animation.play();
+		}
+
+	</script>
+</body>
+</html>
