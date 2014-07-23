@@ -34,7 +34,7 @@
 					10000),
 				renderer = new THREE.WebGLRenderer(); 
 			camera.position.z = 5;
-			camera.position.y = 2;
+			camera.position.y = 4;
 			//camera.rotation
 			renderer.setSize(window.innerWidth, window.innerHeight); 
 
