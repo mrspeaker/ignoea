@@ -42,6 +42,9 @@
 		scene.add(cube);
 		//scene.add(ground);
 
+		var posx = 0,
+			posz = 0;
+
 		document.addEventListener("dblclick", onMouseDown, false);
 
 		var ambient = new THREE.AmbientLight( 0x666666 );
@@ -72,7 +75,7 @@
 			dae.traverse( function ( child ) {
 
 				if ( child instanceof THREE.Mesh ) {
-					//child.material.map = texture;
+					child.material.map = texture;
 					//var animation = new THREE.Animation( child, child.geometry.animation );
 					var scale = 18;
 					child.scale.set(scale, scale, scale);
@@ -127,6 +130,9 @@
 			cube.rotation.y += 0.05;
 			if (person) {
 				//person.rotation.x += 0.01;
+				//person.position.x += 0.01;
+				//person.position.z += 0.01;
+				person.translateZ(0.01);
 			}
 
 			if (animation) animation.update(0.06);
@@ -141,6 +147,29 @@
 			animation.play();
 		}
 
+		function getIntercectPoint(pos, camera, mesh) {
+
+			// Convert the [-1, 1] screen coordinate into a world coordinate on the near plane
+			var projector = new THREE.Projector();
+			projector.unprojectVector( pos, camera );
+
+			var raycaster = new THREE.Raycaster( camera.position, pos.sub( camera.position ).normalize() );
+
+			// See if the ray from the camera into the world hits one of our meshes
+			var intersects = raycaster.intersectObject( groundMesh );
+			//lastIntersects = intersects;
+
+			// Toggle rotation bool for meshes that we clicked
+			if ( intersects.length > 0 ) {
+
+				person.position.set( 0, 1, 0 );
+				person.lookAt( intersects[ 0 ].face.normal );
+				// person.rotation.y -= Math.PI / 2;
+				person.position.copy( intersects[ 0 ].point );
+
+			}
+		}
+
 		function onMouseDown( event ) {
 
 			var mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -150,9 +179,9 @@
 
 			// Convert the [-1, 1] screen coordinate into a world coordinate on the near plane
 			var projector = new THREE.Projector();
-			projector.unprojectVector( vector, camera );
+			projector.unprojectVector(vector, camera);
 
-			var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+			var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 
 			// See if the ray from the camera into the world hits one of our meshes
 			var intersects = raycaster.intersectObject( groundMesh );
