@@ -115,7 +115,7 @@
 				}
 			});
 			object.scale.set(0.01, 0.01, 0.01);
-			object.position.y = 0;
+			object.position.y = 0.2;
 			object.position.z = -2;
 			person = object;
 			scene.add(object);
@@ -133,6 +133,7 @@
 				//person.position.x += 0.01;
 				//person.position.z += 0.01;
 				person.translateZ(0.01);
+				getIntercectPoint(person, groundMesh);
 			}
 
 			if (animation) animation.update(0.06);
@@ -147,27 +148,22 @@
 			animation.play();
 		}
 
-		function getIntercectPoint(pos, camera, mesh) {
+		var raycaster = new THREE.Raycaster();
+		function getIntercectPoint(obj, mesh) {
+			if (!mesh) return;
 
-			// Convert the [-1, 1] screen coordinate into a world coordinate on the near plane
-			var projector = new THREE.Projector();
-			projector.unprojectVector( pos, camera );
+			// Cast downwards		
+			raycaster.set(obj.position, new THREE.Vector3(0, -1, 0));
+			var intersects = raycaster.intersectObject(mesh);
 
-			var raycaster = new THREE.Raycaster( camera.position, pos.sub( camera.position ).normalize() );
-
-			// See if the ray from the camera into the world hits one of our meshes
-			var intersects = raycaster.intersectObject( groundMesh );
-			//lastIntersects = intersects;
-
-			// Toggle rotation bool for meshes that we clicked
-			if ( intersects.length > 0 ) {
-
-				person.position.set( 0, 1, 0 );
-				person.lookAt( intersects[ 0 ].face.normal );
-				// person.rotation.y -= Math.PI / 2;
-				person.position.copy( intersects[ 0 ].point );
-
+			if (!intersects.length) {
+				// Through the floor!
+				obj.translateY(0.1);
+				return;
 			}
+			obj.position.set( 0, 1, 0 );
+			obj.lookAt(intersects[ 0 ].face.normal);
+			obj.position.copy(intersects[ 0 ].point);
 		}
 
 		function onMouseDown( event ) {
