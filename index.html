@@ -42,6 +42,8 @@
 		scene.add(cube);
 		//scene.add(ground);
 
+		document.addEventListener("dblclick", onMouseDown, false);
+
 		var ambient = new THREE.AmbientLight( 0x666666 );
 		scene.add(ambient);
 		var directionalLight = new THREE.DirectionalLight( 0x666666 );
@@ -60,14 +62,15 @@
 			texture.needsUpdate = true;
 		});
 
-		var cloader = new THREE.ColladaLoader();
+		var cloader = new THREE.ColladaLoader(),
+			groundMesh = null;
 		cloader.options.convertUpAxis = true;
 		cloader.load( 'obj/lolz.dae', function ( collada ) {
 
 			var dae = collada.scene;
 
 			dae.traverse( function ( child ) {
-				console.log("ch", child);
+
 				if ( child instanceof THREE.Mesh ) {
 					//child.material.map = texture;
 					//var animation = new THREE.Animation( child, child.geometry.animation );
@@ -75,6 +78,7 @@
 					child.scale.set(scale, scale, scale);
 					//animation.play();
 					scene.add(child);
+					groundMesh = child;
 				}
 
 			//dae.updateMatrix();
@@ -101,7 +105,7 @@
 		var objLoader = new THREE.OBJLoader(manager),
 			person = null;
 
-		objLoader.load("obj/male02.obj", function (object) {
+		objLoader.load("obj/female02.obj", function (object) {
 			object.traverse( function (child) {
 				if (child instanceof THREE.Mesh) {
 					child.material.map = texture;
@@ -122,7 +126,7 @@
 			//cube.rotation.x += 0.05; 
 			cube.rotation.y += 0.05;
 			if (person) {
-				person.rotation.y += 0.01;
+				//person.rotation.x += 0.01;
 			}
 
 			if (animation) animation.update(0.06);
@@ -135,6 +139,35 @@
 			}
 			animation = new THREE.Animation(skinnedMesh, skinnedMesh.geometry.animation);
 			animation.play();
+		}
+
+		function onMouseDown( event ) {
+
+			var mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
+			var mouseY = -( event.clientY / window.innerHeight ) * 2 + 1;
+
+			var vector = new THREE.Vector3( mouseX, mouseY, camera.near );
+
+			// Convert the [-1, 1] screen coordinate into a world coordinate on the near plane
+			var projector = new THREE.Projector();
+			projector.unprojectVector( vector, camera );
+
+			var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+
+			// See if the ray from the camera into the world hits one of our meshes
+			var intersects = raycaster.intersectObject( groundMesh );
+			//lastIntersects = intersects;
+
+			// Toggle rotation bool for meshes that we clicked
+			if ( intersects.length > 0 ) {
+
+				person.position.set( 0, 1, 0 );
+				person.lookAt( intersects[ 0 ].face.normal );
+				// person.rotation.y -= Math.PI / 2;
+				person.position.copy( intersects[ 0 ].point );
+
+			}
+
 		}
 
 	</script>
