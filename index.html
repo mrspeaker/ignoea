@@ -108,7 +108,7 @@
 		var objLoader = new THREE.OBJLoader(manager),
 			person = null;
 
-		objLoader.load("obj/female02.obj", function (object) {
+		objLoader.load("obj/male02.obj", function (object) {
 			object.traverse( function (child) {
 				if (child instanceof THREE.Mesh) {
 					child.material.map = texture;
@@ -158,10 +158,10 @@
 
 			if (!intersects.length) {
 				// Through the floor!
-				obj.translateY(0.1);
+				//obj.translateY(0.1);
 				return;
 			}
-			obj.position.set( 0, 1, 0 );
+			obj.position.set(0, 1, 0);
 			obj.lookAt(intersects[ 0 ].face.normal);
 			obj.position.copy(intersects[ 0 ].point);
 		}
