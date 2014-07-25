@@ -39,7 +39,8 @@
 		scene.add(cube);
 		
 		var posx = 0,
-			posz = 0;
+			posz = 0,
+			targetPoint = new THREE.Vector3();
 
 		document.addEventListener("dblclick", onMouseDown, false);
 
@@ -121,6 +122,10 @@
 				getIntercectPoint(person, groundMesh);
 			}
 
+			if (targetPoint) {
+
+			}
+
 			if (animation) animation.update(0.06);
 		}
 
@@ -144,10 +149,11 @@
 				obj.translateY(0.1);
 				return;
 			}
-			obj.position.set(0, 1, 0);
-			obj.lookAt(intersects[0].face.normal);
+			//obj.position.set(0, 1, 0);
+			//obj.lookAt(intersects[0].face.normal);
 			obj.position.copy(intersects[0].point);
 			obj.translateY(0.01); // Move up a tiny bit
+			
 		}
 
 		function onMouseDown( event ) {
@@ -169,10 +175,12 @@
 
 			// Toggle rotation bool for meshes that we clicked
 			if (intersects.length > 0) {
-				person.position.set(0, 1, 0);
-				person.lookAt(intersects[0].face.normal);
-				// person.rotation.y -= Math.PI / 2;
-				person.position.copy(intersects[0].point);
+				//person.position.set(0, 1, 0);
+				//person.lookAt(intersects[0].face.normal);
+				// // person.rotation.y -= Math.PI / 2;
+				//person.position.copy(intersects[0].point);
+				targetPoint.copy(intersects[0].point);
+				person.lookAt(targetPoint);
 			}
 
 		}
