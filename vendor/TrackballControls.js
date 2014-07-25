@@ -263,7 +263,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 				pan.add( objectUp.copy( _this.object.up ).setLength( mouseChange.y ) );
 
 				_this.object.position.add( pan );
-				_this.target.add( pan );
+				_this.target.add( new THREE.Vector3(pan.x, pan.z, -pan.y) );
 
 				if ( _this.staticMoving ) {
 

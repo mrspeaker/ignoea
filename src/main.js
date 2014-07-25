@@ -43,6 +43,17 @@
 			this.scene = scene;
 			this.camera = camera;
 			this.renderer = renderer;
+
+			this.addLights();
+		},
+
+		addLights: function () {
+			var ambient = new THREE.AmbientLight( 0x666666 );
+			var directionalLight = new THREE.DirectionalLight( 0x666666 );
+			directionalLight.position.set(0, 1000, 500);
+			
+			this.scene.add(ambient);
+			this.scene.add(directionalLight);
 		},
 
 		makeCube: function () {

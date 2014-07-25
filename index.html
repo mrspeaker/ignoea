@@ -27,36 +27,32 @@
 
 		var controls = new THREE.TrackballControls( camera );
 		
-		var cube = main.gl.makeCube();//,
-			//ground = main.gl.makeGround();
+		var cube = main.gl.makeCube();
 
 		controls.panSpeed = 3.8;
 		controls.noRoll = true;
 		controls.noRotate = true;
 		controls.staticMoving = true;
-		//controls.dynamicDampingFactor = 0.3;
-		//controls.keys = [ 65, 83, 68 ];
-
+		
 		cube.rotation.y = 0;//0.5;
 		cube.position.z = -2
 		scene.add(cube);
-		//scene.add(ground);
-
+		
 		var posx = 0,
 			posz = 0;
 
 		document.addEventListener("dblclick", onMouseDown, false);
 
-		var ambient = new THREE.AmbientLight( 0x666666 );
-		scene.add(ambient);
-		var directionalLight = new THREE.DirectionalLight( 0x666666 );
-		directionalLight.position.set(0, 1000, 500);
-		scene.add(directionalLight);
-
 		var manager = new THREE.LoadingManager();
 		manager.onProgress = function (item, loaded, total) {
 			console.log(item, loaded, total);
 		};
+		manager.onLoad = function () {
+			main.run();
+		};
+		manager.onError = function () {
+			console.log("error loading", arguments)
+		}
 
 		var texture = new THREE.Texture();
 		var imgLoader = new THREE.ImageLoader(manager);
@@ -69,31 +65,22 @@
 			groundMesh = null;
 		cloader.options.convertUpAxis = true;
 		cloader.load( 'obj/lolz.dae', function ( collada ) {
-
 			var dae = collada.scene;
-
 			dae.traverse( function ( child ) {
-
 				if ( child instanceof THREE.Mesh ) {
 					child.material.map = texture;
-					//var animation = new THREE.Animation( child, child.geometry.animation );
 					var scale = 18;
 					child.scale.set(scale, scale, scale);
-					//animation.play();
-					scene.add(child);
+					scene.add(child);	
 					groundMesh = child;
 				}
-
-			//dae.updateMatrix();
-
-			//scene.add(dae);
-
 			} );
 
 		});
 
 		var objLoader = new THREE.JSONLoader(manager),
 			animation = null;
+
 		objLoader.load('./obj/model.js', function (geometry, materials) {
 			var skinnedMesh = new THREE.SkinnedMesh(geometry, new THREE.MeshFaceMaterial(materials));
 			skinnedMesh.position.y = 0;
@@ -120,8 +107,6 @@
 			person = object;
 			scene.add(object);
 		});
-
-		main.run();
 
 		function update() { 
 			controls.update();
@@ -152,18 +137,17 @@
 		function getIntercectPoint(obj, mesh) {
 			if (!mesh) return;
 
-			// Cast downwards		
+			// Cast downwards
 			raycaster.set(obj.position, new THREE.Vector3(0, -1, 0));
 			var intersects = raycaster.intersectObject(mesh);
-
 			if (!intersects.length) {
-				// Through the floor!
-				//obj.translateY(0.1);
+				obj.translateY(0.1);
 				return;
 			}
 			obj.position.set(0, 1, 0);
-			obj.lookAt(intersects[ 0 ].face.normal);
-			obj.position.copy(intersects[ 0 ].point);
+			obj.lookAt(intersects[0].face.normal);
+			obj.position.copy(intersects[0].point);
+			obj.translateY(0.01); // Move up a tiny bit
 		}
 
 		function onMouseDown( event ) {
@@ -180,17 +164,15 @@
 			var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 
 			// See if the ray from the camera into the world hits one of our meshes
-			var intersects = raycaster.intersectObject( groundMesh );
+			var intersects = raycaster.intersectObject(groundMesh);
 			//lastIntersects = intersects;
 
 			// Toggle rotation bool for meshes that we clicked
-			if ( intersects.length > 0 ) {
-
-				person.position.set( 0, 1, 0 );
-				person.lookAt( intersects[ 0 ].face.normal );
+			if (intersects.length > 0) {
+				person.position.set(0, 1, 0);
+				person.lookAt(intersects[0].face.normal);
 				// person.rotation.y -= Math.PI / 2;
-				person.position.copy( intersects[ 0 ].point );
-
+				person.position.copy(intersects[0].point);
 			}
 
 		}
