@@ -69,8 +69,8 @@
 			var dae = collada.scene;
 			dae.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
-					child.material.map = texture;
-					var scale = 18;
+					//child.material.map = texture;
+					var scale = 52;
 					child.scale.set(scale, scale, scale);
 					scene.add(child);	
 					groundMesh = child;
