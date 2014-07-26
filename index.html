@@ -19,6 +19,7 @@
 	<script src="vendor/ColladaLoader.js"></script>
 	<script src="vendor/TrackballControls.js"></script>
 	<script src="src/Entities/Person.js"></script>
+	<script src="src/Entities/Cubey.js"></script>
 	<script src="src/main.js"></script>
 	<script>
 		main.init(update);
@@ -27,44 +28,29 @@
 			camera = main.gl.camera;
 
 		var controls = new THREE.TrackballControls( camera );
-		
-		var cube = main.gl.makeCube();
-
 		controls.panSpeed = 3.8;
 		controls.noRoll = true;
 		controls.noRotate = true;
 		controls.staticMoving = true;
 		
-		cube.rotation.y = 0;//0.5;
-		cube.position.z = -2
-		scene.add(cube);
+		var person = new Person().init([-2, -0.1, -2]),
+			p2 = new Person().init([0, -0.1, -10]);
+
+		var cube = new Cubey().init(0, 0, -2);
 		
-		var person = new Person();
+		scene.add(cube.mesh);
 
 		document.addEventListener("dblclick", onMouseDown, false);
 
-		var manager = new THREE.LoadingManager();
-		manager.onProgress = function (item, loaded, total) {
-			console.log(item, loaded, total);
-		};
-		manager.onLoad = function () {
-			main.run();
-		};
-		manager.onError = function () {
-			console.log("error loading", arguments)
-		}
-
 		var texture = new THREE.Texture();
-		var imgLoader = new THREE.ImageLoader(manager);
-		imgLoader.load("textures/UV_Grid_Sm.jpg", function (image) {
+		main.loaders.image.load("textures/UV_Grid_Sm.jpg", function (image) {
 			texture.image = image;
 			texture.needsUpdate = true;
 		});
 
-		var cloader = new THREE.ColladaLoader(),
-			groundMesh = null;
-		cloader.options.convertUpAxis = true;
-		cloader.load( 'obj/lolz.dae', function ( collada ) {
+		var groundMesh = null;
+		main.loaders.collada.options.convertUpAxis = true;
+		main.loaders.collada.load( 'obj/lolz.dae', function ( collada ) {
 			var dae = collada.scene;
 			dae.traverse( function ( child ) {
 				if ( child instanceof THREE.Mesh ) {
@@ -78,10 +64,9 @@
 
 		});
 
-		var objLoader = new THREE.JSONLoader(manager),
-			animation = null;
+		var animation = null;
 
-		objLoader.load('./obj/model.js', function (geometry, materials) {
+		main.loaders.object.load('./obj/model.js', function (geometry, materials) {
 			var skinnedMesh = new THREE.SkinnedMesh(geometry, new THREE.MeshFaceMaterial(materials));
 			skinnedMesh.position.y = 0;
 			skinnedMesh.position.z = -5;
@@ -92,33 +77,22 @@
 			animate(skinnedMesh);
 		});
 		
-		var objLoader = new THREE.OBJLoader(manager);
-
-		objLoader.load("obj/male02.obj", function (object) {
-			object.traverse( function (child) {
-				if (child instanceof THREE.Mesh) {
-					child.material.map = texture;
-				}
+		[person, p2].forEach(function (p) {
+			p.loadMesh(main.manager, texture, function (mesh) {
+				scene.add(mesh);
 			});
-			object.scale.set(0.01, 0.01, 0.01);
-			object.position.y = 0.2;
-			object.position.z = -2;
-			person.mesh = object;
-			scene.add(object);
 		});
 
 		function update() { 
 			controls.update();
 
-			//cube.rotation.x += 0.05; 
-			cube.rotation.y += 0.05;
-			if (person.target) {
-				person.mesh.translateZ(0.05);
-				if (person.mesh.position.distanceToSquared(person.target) < 1) {
-					person.target = null;
-				}
-			}
-			getIntercectPoint(person.mesh, groundMesh);
+			cube.update();
+			person.update();
+			p2.update();
+
+			[person, p2].forEach(function (p) {
+				getIntercectPoint(p.mesh, groundMesh);
+			});
 
 			if (animation) animation.update(0.06);
 		}

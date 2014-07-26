@@ -4,9 +4,25 @@
 
 	var main = {
 		init: function (cb) {
-			this.gl = gl; // TODO: nope.
-			gl.init();
+			var self = this;
+			this.gl = gl.init(); // TODO: nope.
 			this.cb = cb;
+			
+			var manager = this.manager = new THREE.LoadingManager();
+			this.loaders = {
+				image: new THREE.ImageLoader(manager),
+				collada: new THREE.ColladaLoader(manager),
+				object: new THREE.JSONLoader(manager)
+			};
+			manager.onProgress = function (item, loaded, total) {
+				console.log(item, loaded, total);
+			};
+			manager.onLoad = function () {
+				self.run();
+			};
+			manager.onError = function () {
+				console.log("error loading", arguments);
+			};
 		},
 		run: function () {
 			var self = this;
@@ -45,6 +61,8 @@
 			this.renderer = renderer;
 
 			this.addLights();
+
+			return this;
 		},
 
 		addLights: function () {
