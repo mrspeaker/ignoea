@@ -18,6 +18,7 @@
 	<script src="vendor/OBJLoader.js"></script>
 	<script src="vendor/ColladaLoader.js"></script>
 	<script src="vendor/TrackballControls.js"></script>
+	<script src="src/Entities/Person.js"></script>
 	<script src="src/main.js"></script>
 	<script>
 		main.init(update);
@@ -38,9 +39,7 @@
 		cube.position.z = -2
 		scene.add(cube);
 		
-		var posx = 0,
-			posz = 0,
-			targetPoint = new THREE.Vector3();
+		var person = new Person();
 
 		document.addEventListener("dblclick", onMouseDown, false);
 
@@ -93,8 +92,7 @@
 			animate(skinnedMesh);
 		});
 		
-		var objLoader = new THREE.OBJLoader(manager),
-			person = null;
+		var objLoader = new THREE.OBJLoader(manager);
 
 		objLoader.load("obj/male02.obj", function (object) {
 			object.traverse( function (child) {
@@ -105,7 +103,7 @@
 			object.scale.set(0.01, 0.01, 0.01);
 			object.position.y = 0.2;
 			object.position.z = -2;
-			person = object;
+			person.mesh = object;
 			scene.add(object);
 		});
 
@@ -114,19 +112,13 @@
 
 			//cube.rotation.x += 0.05; 
 			cube.rotation.y += 0.05;
-			if (person) {
-				//person.rotation.x += 0.01;
-				//person.position.x += 0.01;
-				//person.position.z += 0.01;
-
-				if (targetPoint) {
-					person.translateZ(0.05);
-					if (person.position.distanceToSquared(targetPoint) < 1) {
-						targetPoint = null;
-					}
+			if (person.target) {
+				person.mesh.translateZ(0.05);
+				if (person.mesh.position.distanceToSquared(person.target) < 1) {
+					person.target = null;
 				}
-				getIntercectPoint(person, groundMesh);
 			}
+			getIntercectPoint(person.mesh, groundMesh);
 
 			if (animation) animation.update(0.06);
 		}
@@ -181,8 +173,8 @@
 				//person.lookAt(intersects[0].face.normal);
 				// // person.rotation.y -= Math.PI / 2;
 				//person.position.copy(intersects[0].point);
-				targetPoint = intersects[0].point;
-				person.lookAt(targetPoint);
+				person.target = intersects[0].point;
+				person.mesh.lookAt(person.target);
 			}
 
 		}
