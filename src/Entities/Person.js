@@ -1,43 +1,66 @@
 (function () {
+
+	var loadingPromise = null;
 	
 	var Person = function () {
 		this.pos = null;
 		this.rot = null;
 		this.target = null;
+
 		this.mesh = null;
 	};
 
 	Person.prototype = {
 		
-		init: function (pos) {
+		init: function (scene, pos) {
 			this.pos = new THREE.Vector3(pos[0], pos[1], pos[2]);
 			this.rot = new THREE.Euler();
 			this.target = null;
+
+			this.loadMesh(function (obj) {
+				scene.add(obj)
+			});
+
 			return this;
 		},
 
-		loadMesh: function (manager, texture, cb) {
-			var self = this,
-				objLoader = new THREE.OBJLoader(manager);
+		loadMesh: function (cb) {
 
-			objLoader.load("obj/male02.obj", function (mesh) {
-				mesh.traverse( function (child) {
+			var self = this;
+			
+			if (!loadingPromise) {
+				loadingPromise = new Promise(function (resolve, reject) {
+					var texture = new THREE.Texture();
+					main.loaders.image.load("textures/UV_Grid_Sm.jpg", function (image) {
+						texture.image = image;
+						texture.needsUpdate = true;
+						main.loaders.object.load("obj/male02.obj", function (mesh) {
+							resolve([texture, mesh]);
+						});
+					});
+				});
+			}
+			loadingPromise.then(function (texAndObj) {
+				var texture = texAndObj[0],
+					obj3d = texAndObj[1].clone();
+				obj3d.traverse( function (child) {
 					if (child instanceof THREE.Mesh) {
 						child.material.map = texture;
 					}
 				});
-				mesh.scale.set(0.01, 0.01, 0.01);
-				mesh.position.copy(self.pos);
-				self.mesh = mesh;
-				cb(mesh);
+				obj3d.scale.set(0.01, 0.01, 0.01);
+				obj3d.position.copy(self.pos);			
+				self.mesh = obj3d;
+				cb(obj3d);
 			});
+			
 		},
 
 		update: function () {
-			if (person.target) {
-				person.mesh.translateZ(0.05);
-				if (person.mesh.position.distanceToSquared(person.target) < 1) {
-					person.target = null;
+			if (this.target) {
+				this.mesh.translateZ(0.05);
+				if (this.mesh.position.distanceToSquared(this.target) < 1) {
+					this.target = null;
 				}
 			}
 		},

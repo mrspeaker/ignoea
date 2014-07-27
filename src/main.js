@@ -12,7 +12,8 @@
 			this.loaders = {
 				image: new THREE.ImageLoader(manager),
 				collada: new THREE.ColladaLoader(manager),
-				object: new THREE.JSONLoader(manager)
+				json: new THREE.JSONLoader(manager),
+				object: new THREE.OBJLoader(manager)
 			};
 			manager.onProgress = function (item, loaded, total) {
 				console.log(item, loaded, total);
@@ -62,6 +63,8 @@
 
 			this.addLights();
 
+			this.raycaster = new THREE.Raycaster();
+
 			return this;
 		},
 
@@ -98,6 +101,23 @@
 
 		render: function () {
 			this.renderer.render(this.scene, this.camera); 
+		},
+
+		getIntercectPoint: function (obj, mesh) {
+			if (!mesh) return;
+
+			// Cast downwards
+			this.raycaster.set(obj.position, new THREE.Vector3(0, -1, 0));
+			var intersects = this.raycaster.intersectObject(mesh);
+			if (!intersects.length) {
+				obj.translateY(0.1);
+				return;
+			}
+			//obj.position.set(0, 1, 0);
+			//obj.lookAt(intersects[0].face.normal);
+			obj.position.copy(intersects[0].point);
+			obj.translateY(0.01); // Move up a tiny bit
+			
 		}
 
 	};

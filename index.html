@@ -34,8 +34,17 @@
 		controls.noRotate = true;
 		controls.staticMoving = true;
 		
-		var person = new Person().init([-2, -0.1, -2]),
-			p2 = new Person().init([0, -0.1, -10]);
+		var person = new Person().init(scene, [-2, -0.1, -2]),
+			peeps = [];
+			
+		for (var i = 0; i < 20; i++) {
+			var p = new Person().init(scene, [
+				Math.random() * 20 - 10, 
+				-0.1, 
+				Math.random() * 20 -10
+			]);
+			peeps.push(p);
+		}
 
 		var cube = new Cubey().init(0, 0, -2);
 		
@@ -72,22 +81,20 @@
 			scene.add(skinnedMesh);
 			animate(skinnedMesh);
 		});
-		
-		[person, p2].forEach(function (p) {
-			p.loadMesh(main.manager, texture, function (mesh) {
-				scene.add(mesh);
-			});
-		});
 
 		function update() { 
 			controls.update();
 
 			cube.update();
-			person.update();
-			p2.update();
+			peeps.forEach(function (p) {
+				p.update();
+				//main.gl.getIntercectPoint(p.mesh, groundMesh);
+			});
 
-			[person, p2].forEach(function (p) {
-				getIntercectPoint(p.mesh, groundMesh);
+			[person].forEach(function (p) {
+				if (!p.mesh) return;
+				p.update();
+				main.gl.getIntercectPoint(p.mesh, groundMesh);
 			});
 
 			if (animation) animation.update(0.06);
@@ -100,24 +107,6 @@
 			}
 			animation = new THREE.Animation(skinnedMesh, skinnedMesh.geometry.animation);
 			animation.play();
-		}
-
-		var raycaster = new THREE.Raycaster();
-		function getIntercectPoint(obj, mesh) {
-			if (!mesh) return;
-
-			// Cast downwards
-			raycaster.set(obj.position, new THREE.Vector3(0, -1, 0));
-			var intersects = raycaster.intersectObject(mesh);
-			if (!intersects.length) {
-				obj.translateY(0.1);
-				return;
-			}
-			//obj.position.set(0, 1, 0);
-			//obj.lookAt(intersects[0].face.normal);
-			obj.position.copy(intersects[0].point);
-			obj.translateY(0.01); // Move up a tiny bit
-			
 		}
 
 		function onMouseDown( event ) {
