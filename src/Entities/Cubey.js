@@ -24,7 +24,7 @@
 			// Sync the mesh to the person
 		}
 	};
-	Person.prototype.constructor = Cubey;
+	Cubey.prototype.constructor = Cubey;
 
 	window.Cubey = Cubey;
 

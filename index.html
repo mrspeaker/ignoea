@@ -20,6 +20,7 @@
 	<script src="vendor/TrackballControls.js"></script>
 	<script src="src/Entities/Person.js"></script>
 	<script src="src/Entities/Cubey.js"></script>
+	<script src="src/Entities/BoxyMan.js"></script>
 	<script src="src/main.js"></script>
 	<script>
 		main.init(update);
@@ -64,16 +65,11 @@
 
 		});
 
-		var animation = null;
+		var animation = null,
+			boxy = new BoxyMan().init([0, 0, -15]);
 
-		main.loaders.object.load('./obj/model.js', function (geometry, materials) {
-			var skinnedMesh = new THREE.SkinnedMesh(geometry, new THREE.MeshFaceMaterial(materials));
-			skinnedMesh.position.y = 0;
-			skinnedMesh.position.z = -5;
-
-			skinnedMesh.scale.set(1, 1, 1);
+		boxy.loadMesh(function (skinnedMesh) {
 			scene.add(skinnedMesh);
-			 
 			animate(skinnedMesh);
 		});
 		
