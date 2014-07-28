@@ -19,27 +19,24 @@
 	<script src="vendor/ColladaLoader.js"></script>
 	<script src="vendor/TrackballControls.js"></script>
 	<script src="src/Entities/Person.js"></script>
+	<script src="src/Entities/NPC.js"></script>
 	<script src="src/Entities/Cubey.js"></script>
 	<script src="src/Entities/BoxyMan.js"></script>
+	<script src="src/input.js"></script>
 	<script src="src/main.js"></script>
 	<script>
+		
 		main.init(update);
 
 		var scene = main.gl.scene,
 			camera = main.gl.camera;
-
-		var controls = new THREE.TrackballControls( camera );
-		controls.panSpeed = 3.8;
-		controls.noRoll = true;
-		controls.noRotate = true;
-		controls.staticMoving = true;
 		
 		var peeps = [];
 
 		var person;
 			
 		for (var i = 0; i < 20; i++) {
-			var p = new Person().init(scene, [
+			var p = new NPC().init(scene, [
 				Math.random() * 20 - 10, 
 				-0.1, 
 				Math.random() * 20 -10
@@ -87,8 +84,6 @@
 		});
 
 		function update() { 
-			controls.update();
-
 			cube.update();
 			peeps.forEach(function (p) {
 				p.update();

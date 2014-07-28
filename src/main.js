@@ -7,6 +7,8 @@
 			var self = this;
 			this.gl = gl.init(); // TODO: nope.
 			this.cb = cb;
+
+			this.controls = new Input().init(this.gl.camera);
 			
 			var manager = this.manager = new THREE.LoadingManager();
 			this.loaders = {
@@ -34,6 +36,7 @@
 			}); 
 		},
 		update: function () {
+			this.controls.update();
 			this.cb();
 		},
 		render: function () {
@@ -52,7 +55,6 @@
 				renderer = new THREE.WebGLRenderer(); 
 			camera.position.z = 5;
 			camera.position.y = 4;
-			//camera.rotation
 			renderer.setSize(window.innerWidth, window.innerHeight); 
 
 			document.body.appendChild(renderer.domElement);
@@ -78,13 +80,11 @@
 		},
 
 		makeCube: function () {
-
 			var geometry = new THREE.BoxGeometry(1,1,1),
 				material = new THREE.MeshPhongMaterial({ color: 0x00ff00 }),
 				cube = new THREE.Mesh(geometry, material);
 
 			return cube;
-
 		},
 
 		makeGround: function () {
