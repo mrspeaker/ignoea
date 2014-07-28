@@ -69,7 +69,7 @@
 		},
 
 		addLights: function () {
-			var ambient = new THREE.AmbientLight( 0x666666 );
+			var ambient = new THREE.AmbientLight( 0x888888 );
 			var directionalLight = new THREE.DirectionalLight( 0x666666 );
 			directionalLight.position.set(0, 1000, 500);
 			

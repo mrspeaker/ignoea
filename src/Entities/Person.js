@@ -36,7 +36,7 @@
 					main.loaders.image.load("textures/UV_Grid_Sm.jpg", function (image) {
 						texture.image = image;
 						texture.needsUpdate = true;
-						main.loaders.object.load("obj/male02.obj", function (mesh) {
+						main.loaders.object.load("obj/female02.obj", function (mesh) {
 							resolve([texture, mesh]);
 						});
 					});
