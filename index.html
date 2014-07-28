@@ -34,8 +34,9 @@
 		controls.noRotate = true;
 		controls.staticMoving = true;
 		
-		var person = new Person().init(scene, [-2, -0.1, -2]),
-			peeps = [];
+		var peeps = [];
+
+		var person;
 			
 		for (var i = 0; i < 20; i++) {
 			var p = new Person().init(scene, [
@@ -46,11 +47,14 @@
 			peeps.push(p);
 		}
 
+		person = peeps[0];
+
 		var cube = new Cubey().init(0, 0, -2);
 		
 		scene.add(cube.mesh);
 
-		document.addEventListener("dblclick", onMouseDown, false);
+		document.addEventListener("dblclick", onDoubleDown, false);
+		document.addEventListener("click", onMouseDown, false);
 
 		var texture = new THREE.Texture();
 		main.loaders.image.load("textures/UV_Grid_Sm.jpg", function (image) {
@@ -88,13 +92,9 @@
 			cube.update();
 			peeps.forEach(function (p) {
 				p.update();
-				//main.gl.getIntercectPoint(p.mesh, groundMesh);
-			});
-
-			[person].forEach(function (p) {
-				if (!p.mesh) return;
-				p.update();
-				main.gl.getIntercectPoint(p.mesh, groundMesh);
+				if (p.mesh && p.target) {
+					main.gl.getIntercectPoint(p.mesh, groundMesh);
+				}
 			});
 
 			if (animation) animation.update(0.06);
@@ -109,7 +109,8 @@
 			animation.play();
 		}
 
-		function onMouseDown( event ) {
+		var raycaster = new THREE.Raycaster();
+		function onDoubleDown( event ) {
 
 			var mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
 			var mouseY = -( event.clientY / window.innerHeight ) * 2 + 1;
@@ -120,13 +121,16 @@
 			var projector = new THREE.Projector();
 			projector.unprojectVector(vector, camera);
 
-			var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+			var norm = vector.sub(camera.position).normalize();
+			raycaster.set(camera.position, norm);
 
-			// See if the ray from the camera into the world hits one of our meshes
+			var peepsMesh = peeps.map(function (p) {
+				return p.mesh;
+			});
+
+			var intersectObjs = raycaster.intersectObjects(peepsMesh);
 			var intersects = raycaster.intersectObject(groundMesh);
-			//lastIntersects = intersects;
 
-			// Toggle rotation bool for meshes that we clicked
 			if (intersects.length > 0) {
 				//person.position.set(0, 1, 0);
 				//person.lookAt(intersects[0].face.normal);
@@ -134,6 +138,45 @@
 				//person.position.copy(intersects[0].point);
 				person.target = intersects[0].point;
 				person.mesh.lookAt(person.target);
+			}
+
+		}
+
+		function onMouseDown( event ) {
+
+			var mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+			var mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+
+			var vector = new THREE.Vector3( mouseX, mouseY, camera.near );
+
+			// Convert the [-1, 1] screen coordinate into a world coordinate on the near plane
+			var projector = new THREE.Projector();
+			projector.unprojectVector(vector, camera);
+
+			var norm = vector.sub(camera.position).normalize();
+			raycaster.set(camera.position, norm);
+
+			var peepsMesh = peeps.map(function (p) {
+				return p.mesh;
+			});
+
+
+			var intersects = raycaster.intersectObjects(peepsMesh, true);
+			if (intersects.length > 0) {
+				//person.position.set(0, 1, 0);
+				//person.lookAt(intersects[0].face.normal);
+				// // person.rotation.y -= Math.PI / 2;
+				//person.position.copy(intersects[0].point);
+				//person.target = intersects[0].point;
+				//person.mesh.lookAt(person.target);
+				var parent = intersects[0].object.parent;
+				peeps.forEach(function (p) {
+					if (p.mesh === parent) {
+						person = p;
+						p.mesh.translateY(0.1);
+					}
+				});
+
 			}
 
 		}

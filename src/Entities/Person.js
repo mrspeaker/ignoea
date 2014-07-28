@@ -8,6 +8,8 @@
 		this.target = null;
 
 		this.mesh = null;
+
+		this.speed = 0.12;
 	};
 
 	Person.prototype = {
@@ -43,8 +45,10 @@
 			loadingPromise.then(function (texAndObj) {
 				var texture = texAndObj[0],
 					obj3d = texAndObj[1].clone();
-				obj3d.traverse( function (child) {
-					if (child instanceof THREE.Mesh) {
+				var thing = true;
+				obj3d.traverse(function (child) {
+					if (child instanceof THREE.Mesh && thing) {
+						thing = false;
 						child.material.map = texture;
 					}
 				});
@@ -58,7 +62,7 @@
 
 		update: function () {
 			if (this.target) {
-				this.mesh.translateZ(0.05);
+				this.mesh.translateZ(this.speed);
 				if (this.mesh.position.distanceToSquared(this.target) < 1) {
 					this.target = null;
 				}
