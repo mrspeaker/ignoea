@@ -61,15 +61,21 @@
 
 		var groundMesh = null;
 		main.loaders.collada.options.convertUpAxis = true;
-		main.loaders.collada.load( 'obj/lolz.dae', function ( collada ) {
+		main.loaders.collada.load( 'obj/lolz.dae', function (collada) {
 			var dae = collada.scene;
-			dae.traverse( function ( child ) {
-				if ( child instanceof THREE.Mesh ) {
+			console.log("Collada load:", dae)
+			dae.scale.set(160,160,160);
+			var i = -1;
+			dae.traverse(function (child) {
+				console.log(++i + "!", child.id, child);
+				if (child instanceof THREE.Mesh) {
 					//child.material.map = texture;
-					var scale = 52;
-					child.scale.set(scale, scale, scale);
+					//var scale = 52;
+					var scale = 1;//
+					//child.scale.set(scale, scale, scale);
 					scene.add(child);	
-					groundMesh = child;
+					console.log("oarent pos:", child)
+					if (!groundMesh) groundMesh = child;
 				}
 			} );
 

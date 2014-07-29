@@ -74,9 +74,12 @@
 			var ambient = new THREE.AmbientLight( 0x888888 );
 			var directionalLight = new THREE.DirectionalLight( 0x666666 );
 			directionalLight.position.set(0, 1000, 500);
+
+			//var hemiLight = new THREE.HemisphereLight(0xA00000, 0xffffff, 0.8)
 			
 			this.scene.add(ambient);
 			this.scene.add(directionalLight);
+			//this.scene.add(hemiLight);
 		},
 
 		makeCube: function () {
