@@ -18,7 +18,7 @@
 
 		loadMesh: function (cb) {
 			var self = this;
-			main.loaders.json.load('./obj/model.js', function (geometry, materials) {
+			main.loaders.json.load('./obj/mango.js', function (geometry, materials) {
 				var skinnedMesh = new THREE.SkinnedMesh(geometry, new THREE.MeshFaceMaterial(materials));
 				skinnedMesh.position.copy(self.pos);
 				skinnedMesh.scale.set(1, 1, 1);

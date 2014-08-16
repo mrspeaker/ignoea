@@ -65,7 +65,6 @@
 			var dae = collada.scene;
 			var i = -1;
 			dae.traverse(function (child) {
-				console.log(++i + "!", child.id, child);
 				if (child instanceof THREE.Mesh) {
 					if (!groundMesh) {
 						groundMesh = child;
@@ -74,7 +73,6 @@
 					var scale = 10;//
 					child.scale.set(scale, scale, scale);
 					scene.add(child);	
-					console.log("oarent pos:", child)
 					}
 					
 				}
@@ -103,11 +101,12 @@
 		}
 
 		function animate (skinnedMesh) {
-			var materials = skinnedMesh.material.materials;		
+			console.log(skinnedMesh);
+			var materials = skinnedMesh.material.materials;
 			for (var k in materials) {
 				materials[k].skinning = true;
 			}
-			animation = new THREE.Animation(skinnedMesh, skinnedMesh.geometry.animation);
+			animation = new THREE.Animation(skinnedMesh, skinnedMesh.geometry.animations[0]);
 			animation.play();
 		}
 

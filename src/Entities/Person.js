@@ -29,7 +29,7 @@
 		loadMesh: function (cb) {
 
 			var self = this;
-			
+			console.log(19)
 			if (!loadingPromise) {
 				loadingPromise = new Promise(function (resolve, reject) {
 					var texture = new THREE.Texture();
@@ -57,6 +57,7 @@
 				self.mesh = obj3d;
 				cb(obj3d);
 			});
+			console.log(20)
 			
 		},
 
